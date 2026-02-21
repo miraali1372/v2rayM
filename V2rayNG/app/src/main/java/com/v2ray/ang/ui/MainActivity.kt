@@ -39,6 +39,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.widget.Button
+import android.widget.Toast
+import com.v2ray.ang.ConfigOptimizer   // کلاس جدید
 
 class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val binding by lazy {
@@ -62,7 +65,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             setupGroupTab()
         }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,6 +97,24 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
 
         binding.fab.setOnClickListener { handleFabAction() }
         binding.layoutTest.setOnClickListener { handleLayoutTestClick() }
+
+        // ===== دکمه جدید برای بهینه‌سازی کانفیگ =====
+        val btnOptimize = findViewById<Button>(R.id.btn_optimize)
+        btnOptimize.setOnClickListener {
+            val subscriptionUrl = "https://raw.githubusercontent.com/miraali1372/mirsub/main/subscription.txt"
+            lifecycleScope.launch(Dispatchers.IO) {
+                val bestConfig = ConfigOptimizer.findBestConfig(subscriptionUrl)
+                withContext(Dispatchers.Main) {
+                    if (bestConfig != null) {
+                        Toast.makeText(this@MainActivity, "بهترین کانفیگ: $bestConfig", Toast.LENGTH_LONG).show()
+                        // TODO: در صورت تمایل می‌توانید کانفیگ را به لیست اضافه کرده یا مستقیماً وصل شوید
+                    } else {
+                        Toast.makeText(this@MainActivity, "هیچ کانفیگ مناسبی یافت نشد", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+        // =============================================
 
         setupGroupTab()
         setupViewModel()
@@ -179,7 +199,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         binding.tvTestState.text = content
     }
 
-    private  fun applyRunningState(isLoading: Boolean, isRunning: Boolean) {
+    private fun applyRunningState(isLoading: Boolean, isRunning: Boolean) {
         if (isLoading) {
             binding.fab.setImageResource(R.drawable.ic_fab_check)
             return
@@ -339,7 +359,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
             true
         }
 
-
         else -> super.onOptionsItemSelected(item)
     }
 
@@ -360,9 +379,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
-    /**
-     * import config from qrcode
-     */
     private fun importQRcode(): Boolean {
         launchQRCodeScanner { scanResult ->
             if (scanResult != null) {
@@ -372,11 +388,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         return true
     }
 
-    /**
-     * import config from clipboard
-     */
-    private fun importClipboard()
-            : Boolean {
+    private fun importClipboard(): Boolean {
         try {
             val clipboard = Utils.getClipboard(this)
             importBatchConfig(clipboard)
@@ -416,9 +428,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
-    /**
-     * import config from local config file
-     */
     private fun importConfigLocal(): Boolean {
         try {
             showFileChooser()
@@ -429,10 +438,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         return true
     }
 
-
-    /**
-     * import config from sub
-     */
     private fun importConfigViaSub(): Boolean {
         showLoading()
 
@@ -480,7 +485,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 }
             }
             .setNegativeButton(android.R.string.cancel) { _, _ ->
-                //do noting
+                //do nothing
             }
             .show()
     }
@@ -499,7 +504,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 }
             }
             .setNegativeButton(android.R.string.cancel) { _, _ ->
-                //do noting
+                //do nothing
             }
             .show()
     }
@@ -518,7 +523,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
                 }
             }
             .setNegativeButton(android.R.string.cancel) { _, _ ->
-                //do noting
+                //do nothing
             }
             .show()
     }
@@ -534,9 +539,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
-    /**
-     * show file chooser
-     */
     private fun showFileChooser() {
         launchFileChooser { uri ->
             if (uri == null) {
@@ -547,9 +549,6 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         }
     }
 
-    /**
-     * read content from uri
-     */
     private fun readContentFromUri(uri: Uri) {
         try {
             contentResolver.openInputStream(uri).use { input ->
@@ -568,9 +567,7 @@ class MainActivity : HelperBaseActivity(), NavigationView.OnNavigationItemSelect
         return super.onKeyDown(keyCode, event)
     }
 
-
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        // Handle navigation view item clicks here.
         when (item.itemId) {
             R.id.sub_setting -> requestActivityLauncher.launch(Intent(this, SubSettingActivity::class.java))
             R.id.per_app_proxy_settings -> requestActivityLauncher.launch(Intent(this, PerAppProxyActivity::class.java))
