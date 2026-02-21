@@ -75,6 +75,15 @@
                             android:layout_height="1dp"
                             android:background="@color/divider_color_light" />
 
+                        <!-- دکمه جدید برای بهینه‌سازی کانفیگ -->
+                        <Button
+                            android:id="@+id/btn_optimize"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="یافتن بهترین کانفیگ"
+                            android:layout_margin="8dp"
+                            android:gravity="center"/>
+
                         <TextView
                             android:id="@+id/tv_test_state"
                             android:layout_width="wrap_content"
