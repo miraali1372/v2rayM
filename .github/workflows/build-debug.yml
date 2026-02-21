@@ -84,8 +84,23 @@ jobs:
           chmod 755 gradlew
           ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Upload APK (fdroid)
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/debug/app-debug.apk
+          name: app-fdroid-debug
+          path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/fdroid/debug/*.apk
+        if: success()
+
+      - name: Upload APK (playstore)
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-playstore-debug
+          path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/playstore/debug/*.apk
+        if: success()
+
+      - name: Upload any APK (fallback)
+        uses: actions/upload-artifact@v4
+        with:
+          name: any-apk
+          path: ${{ github.workspace }}/V2rayNG/app/build/outputs/apk/**/*.apk
+        if: success()
